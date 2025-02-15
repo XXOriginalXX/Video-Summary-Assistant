@@ -1,2 +1,2 @@
 # Summary-Assistant
-Analyzes online video segments to create summaries
+It works as an Chrome extension, Analyzes online video segments to create summaries
