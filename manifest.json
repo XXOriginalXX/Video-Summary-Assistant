@@ -1,15 +1,16 @@
 {
   "manifest_version": 3,
-  "name": "Video Summarizer",
+  "name": "YouTube Summarizer",
   "version": "1.0",
   "description": "Get quick summaries of YouTube videos",
   "permissions": [
     "activeTab",
-    "scripting",
-    "tabs"
+    "tabs",
+    "scripting"
   ],
   "host_permissions": [
-    "https://www.youtube.com/*"
+    "https://www.youtube.com/*",
+    "https://api.apyhub.com/*"
   ],
   "action": {
     "default_popup": "popup.html"
@@ -18,8 +19,13 @@
     "service_worker": "background.js",
     "type": "module"
   },
-  "content_scripts": [{
-    "matches": ["https://www.youtube.com/*"],
-    "js": ["content.js"]
-  }]
+  "content_scripts": [
+    {
+      "matches": ["https://www.youtube.com/*"],
+      "js": ["contentScript.js"]
+    }
+  ],
+  "content_security_policy": {
+    "extension_pages": "script-src 'self'; object-src 'self'"
+  }
 }

@@ -1,46 +1,83 @@
-document.getElementById("durationSlider").addEventListener("input", function () {
-  document.getElementById("durationValue").innerText = this.value;
-});
+document.addEventListener('DOMContentLoaded', function() {
+  const timeRange = document.getElementById('timeRange');
+  const timeValue = document.getElementById('timeValue');
+  const summarizeButton = document.getElementById('summarize');
+  const summaryContainer = document.getElementById('summaryContainer');
+  const summaryContent = document.getElementById('summaryContent');
+  const status = document.getElementById('status');
+  const videoTitle = document.getElementById('videoTitle');
+  const thumbnailPlaceholder = document.querySelector('.thumbnail-placeholder');
 
-document.getElementById("startExtraction").addEventListener("click", () => {
-  const duration = parseInt(document.getElementById("durationSlider").value);
+  // Update time value display when slider moves
+  timeRange.addEventListener('input', function() {
+    timeValue.textContent = `${this.value}s`;
+  });
 
-  chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
-      chrome.tabs.sendMessage(tabs[0].id, { action: "startSummary", duration }, (response) => {
-          if (response && response.transcript) {
-              console.log("Extracted subtitles:", response.transcript); // Debugging output
-              document.getElementById("capturedSubtitles").innerText = response.transcript || "No subtitles found.";
-              summarizeText(response.transcript);
-          } else {
-              console.error("No subtitles extracted!");
-              document.getElementById("capturedSubtitles").innerText = "No subtitles found.";
-          }
-      });
+  // Check if we're on a YouTube video page and get video details
+  chrome.tabs.query({ active: true, currentWindow: true }, function(tabs) {
+    const url = tabs[0].url;
+    if (url && url.includes('youtube.com/watch')) {
+      // Extract video ID from URL
+      const videoId = new URL(url).searchParams.get('v');
+      if (videoId) {
+        // Update thumbnail
+        thumbnailPlaceholder.innerHTML = `
+          <img 
+            src="https://img.youtube.com/vi/${videoId}/mqdefault.jpg" 
+            alt="Video thumbnail"
+            style="width: 100%; height: 100%; object-fit: cover; border-radius: 0.5rem;"
+          >
+        `;
+        thumbnailPlaceholder.style.height = 'auto';
+        
+        // Update title
+        videoTitle.textContent = tabs[0].title.replace(' - YouTube', '');
+        status.textContent = 'Ready to summarize';
+        summarizeButton.disabled = false;
+      }
+    } else {
+      thumbnailPlaceholder.innerHTML = `
+        <div class="placeholder-text">No video detected</div>
+      `;
+      videoTitle.textContent = 'No YouTube video detected';
+      status.textContent = 'Please navigate to a YouTube video';
+      status.classList.add('error');
+      summarizeButton.disabled = true;
+    }
+  });
+
+  // Handle summarize button click
+  summarizeButton.addEventListener('click', function() {
+    const seconds = parseInt(timeRange.value);
+    
+    // Show loading state
+    summarizeButton.disabled = true;
+    summarizeButton.classList.add('loading');
+    status.textContent = 'Collecting video captions...';
+    status.classList.remove('error', 'success');
+    summaryContainer.style.display = 'block';
+    summaryContent.textContent = 'Processing your video...';
+
+    // Send message to background script
+    chrome.runtime.sendMessage(
+      { 
+        action: 'summarize',
+        duration: seconds
+      },
+      function(response) {
+        summarizeButton.disabled = false;
+        summarizeButton.classList.remove('loading');
+        
+        if (response && response.success) {
+          status.textContent = 'Summary generated successfully';
+          status.classList.add('success');
+          summaryContent.textContent = response.summary;
+        } else {
+          status.textContent = 'Error generating summary';
+          status.classList.add('error');
+          summaryContent.textContent = `Error: ${response.error || 'Unknown error occurred'}`;
+        }
+      }
+    );
   });
 });
-
-
-function summarizeText(subtitleText) {
-  if (!subtitleText.trim()) {
-      document.getElementById("summary").innerText = "No subtitles to summarize.";
-      return;
-  }
-
-  const formData = new FormData();
-  const blob = new Blob([subtitleText], { type: "text/plain" });
-  formData.append("file", blob, "subtitles.txt");
-
-  fetch("https://api.apyhub.com/ai/summarize-documents/file", {
-      method: "POST",
-      headers: { "apy-token": "APY0YGvYtAtixseViWFXJ7YSVQKMqNeIiFw4ltoRSx8X78LXWl1EEUG7WjCJhpydnVH" },
-      body: formData
-  })
-  .then(response => response.json())
-  .then(data => {
-      document.getElementById("summary").innerText = data.summary || "No summary available.";
-  })
-  .catch(error => {
-      console.error("Error:", error);
-      document.getElementById("summary").innerText = "Failed to summarize subtitles.";
-  });
-}

@@ -1,41 +1,65 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <title>YouTube Video Summarizer</title>
-    <style>
-        body {
-            width: 250px;
-            padding: 15px;
-            font-family: Arial, sans-serif;
-        }
-        label {
-            display: block;
-            margin-top: 10px;
-        }
-        #durationSlider {
-            width: 100%;
-            margin-top: 5px;
-        }
-        #durationValue {
-            font-weight: bold;
-        }
-        button {
-            margin-top: 10px;
-            padding: 8px;
-            width: 100%;
-            cursor: pointer;
-        }
-    </style>
-</head>
-<body>
-    <h2>Extract & Summarize</h2>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>YouTube Summarizer</title>
+    <link rel="stylesheet" href="styles.css">
+  </head>
+  <body>
+    <div class="container">
+      <div class="header">
+        <h1>YouTube Summarizer</h1>
+        <p class="subtitle">Get quick summaries of your videos</p>
+      </div>
 
-    <label for="durationSlider">Select Duration (seconds): <span id="durationValue">15</span>s</label>
-    <input type="range" id="durationSlider" min="15" max="60" step="5" value="15">
-    
-    <button id="startExtraction">Start</button>
-    <p id="summary">Subtitles will appear here...</p>
+      <div class="content">
+        <div class="video-info">
+          <div class="thumbnail-placeholder">
+            <div class="placeholder-text">Current Video</div>
+          </div>
+          <div class="video-title" id="videoTitle">No video detected</div>
+        </div>
 
+        <div class="settings-section">
+          <div class="setting-group">
+            <label for="timeRange">Summary Length (seconds)</label>
+            <div class="slider-container">
+              <input 
+                type="range" 
+                id="timeRange" 
+                min="30" 
+                max="300" 
+                step="30" 
+                value="120"
+                class="slider"
+              >
+              <div class="slider-value" id="timeValue">120s</div>
+            </div>
+          </div>
+        </div>
+
+        <button id="summarize" class="primary-button">
+          <span class="button-content">
+            <svg class="button-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+            </svg>
+            Summarize Video
+          </span>
+        </button>
+
+        <div class="summary-container" id="summaryContainer" style="display: none;">
+          <h3>Summary</h3>
+          <div class="summary-content" id="summaryContent">
+            Your video summary will appear here...
+          </div>
+        </div>
+      </div>
+
+      <div class="footer">
+        <div class="status" id="status">Ready to summarize</div>
+      </div>
+    </div>
     <script src="popup.js"></script>
-</body>
+  </body>
 </html>
