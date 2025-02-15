@@ -1,65 +1,41 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Chrome Extension</title>
+<head>
+    <title>YouTube Video Summarizer</title>
     <style>
-
-      body {
-        width: 100%;
-        margin : 0px;
-        padding: 0px;
-        height: 100vh;
-        background: linear-gradient(135deg, #c8b5db 0%, #82a5e2 100%);
-        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        color: white;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-      }
-
-      .container {
-        text-align: center;
-        padding: 30px;
-        border-radius: 10px;
-        width: 100%;
-        max-width: 350px;
-      }
-
-      h1 {
-        font-size: 20px;
-        margin-bottom: 20px;
-        letter-spacing: 1px;
-        color: rgb(17, 15, 15);
-      }
-
-      #summarize {
-        width: 100%;
-        padding: 10px;
-        font-size: 13px;
-        background-color: #641acc;
-        border-radius: 20px;
-        font-weight: bold;
-        cursor: pointer;
-        transition: transform 0.2s, background-color 0.3s ease;
-      }
-
-      #summarize:hover {
-        background-color: #1d64b2;
-        transform: translateY(-2px);
-      }
-
-      #summarize:active {
-        transform: translateY(2px);
-      }
+        body {
+            width: 250px;
+            padding: 15px;
+            font-family: Arial, sans-serif;
+        }
+        label {
+            display: block;
+            margin-top: 10px;
+        }
+        #durationSlider {
+            width: 100%;
+            margin-top: 5px;
+        }
+        #durationValue {
+            font-weight: bold;
+        }
+        button {
+            margin-top: 10px;
+            padding: 8px;
+            width: 100%;
+            cursor: pointer;
+        }
     </style>
-  </head>
-  <body>
-    <div class="container">
-      <h1>Video Summarizer</h1>
-      <button id="summarize">Summarize</button>
-    </div>
+</head>
+<body>
+    <h2>Extract & Summarize</h2>
+
+    <label for="durationSlider">Select Duration (seconds): <span id="durationValue">15</span>s</label>
+    <input type="range" id="durationSlider" min="15" max="60" step="5" value="15">
+    
+    <button id="startExtraction">Start</button>
+    <p id="summary">Subtitles will appear here...</p>
+
     <script src="popup.js"></script>
-  </body>
+</body>
 </html>
