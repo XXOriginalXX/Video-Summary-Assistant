@@ -1,0 +1,32 @@
+{
+    "manifest_version": 3,
+    "name": "Video Summary Assistant",
+    "version": "1.0",
+    "description": "Analyzes YouTube video segments using to create summary",
+    "permissions": [
+      "storage",
+      "activeTab",
+      "scripting",
+      "tabs"
+    ],
+    "host_permissions": [
+      "https://www.youtube.com/*"
+
+    ],
+    "action": {
+        "default_popup": "popup.html",
+        "default_icon": {
+          "16": "icons/copywriting.png",
+          "48": "icons/summary.png",
+          "128": "icons/reporting.png"
+        }
+      },
+      "background": {
+        "service_worker": "background.js",
+        "type": "module"
+      },
+      "content_scripts": [{
+        "matches": ["https://www.youtube.com/*"],
+        "js": ["content.js"]
+      }]
+}

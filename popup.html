@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Chrome Extension</title>
+    <style>
+
+      body {
+        width: 100%;
+        margin : 0px;
+        padding: 0px;
+        height: 100vh;
+        background: linear-gradient(135deg, #c8b5db 0%, #82a5e2 100%);
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        color: white;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+      }
+
+      .container {
+        text-align: center;
+        padding: 30px;
+        border-radius: 10px;
+        width: 100%;
+        max-width: 350px;
+      }
+
+      h1 {
+        font-size: 20px;
+        margin-bottom: 20px;
+        letter-spacing: 1px;
+        color: rgb(17, 15, 15);
+      }
+
+      #summarize {
+        width: 100%;
+        padding: 10px;
+        font-size: 13px;
+        background-color: #641acc;
+        border-radius: 20px;
+        font-weight: bold;
+        cursor: pointer;
+        transition: transform 0.2s, background-color 0.3s ease;
+      }
+
+      #summarize:hover {
+        background-color: #1d64b2;
+        transform: translateY(-2px);
+      }
+
+      #summarize:active {
+        transform: translateY(2px);
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>Video Summarizer</h1>
+      <button id="summarize">Summarize</button>
+    </div>
+    <script src="popup.js"></script>
+  </body>
+</html>
