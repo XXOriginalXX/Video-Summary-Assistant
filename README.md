@@ -130,4 +130,4 @@ This project is licensed under the **MIT License** – feel free to use and modi
 ## 📞 Support & Contributions
 
 💡 Found a bug? Have a suggestion? **Open an issue** on GitHub!  
-📧 For any queries, contact us at: **your-email@example.com**
+📧 For any queries, contact us at: **thusharvijay12@gmail.com**
