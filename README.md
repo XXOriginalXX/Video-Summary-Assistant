@@ -1,4 +1,4 @@
- Smart Video Summarizer – README
+## Smart Video Summarizer – README
 📖 Project Overview
 The Smart Video Summarizer is an AI-powered tool that allows users to summarize YouTube videos and uploaded media files (MP3, MP4, text). The project consists of:
 
