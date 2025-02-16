@@ -2,6 +2,7 @@
 <html>
 <head>
   <title>YouTube Summarizer</title>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
   <style>
     body {
       width: 350px;
@@ -110,6 +111,27 @@
       font-size: 14px;
       line-height: 1.5;
       color: #0f0f0f;
+      position: relative;
+    }
+    .summary-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+    .speak-button {
+      background: none;
+      border: none;
+      color: #606060;
+      cursor: pointer;
+      padding: 5px;
+      transition: color 0.2s;
+    }
+    .speak-button:hover {
+      color: #ff0000;
+    }
+    .speak-button.speaking {
+      color: #ff0000;
     }
     .no-video {
       text-align: center;
@@ -174,19 +196,40 @@
       padding-top: 10px;
       border-top: 1px solid #e0e0e0;
     }
+    .mode-selector {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+    .mode-button {
+      flex: 1;
+      padding: 8px;
+      font-size: 12px;
+      background-color: #e0e0e0;
+    }
+    .mode-button.active {
+      background-color: #ff0000;
+    }
   </style>
 </head>
 <body>
   <div class="container">
     <div class="api-key-section">
-      <label for="api-key">Hugging Face API Key:</label>
-      <input type="text" id="api-key" placeholder="Enter your API key">
-      <button id="save-api-key" class="save-button">Save API Key</button>
+      <label for="hugging-face-key">Hugging Face API Key:</label>
+      <input type="text" id="hugging-face-key" placeholder="Enter your Hugging Face API key">
+      <button id="save-hugging-face-key" class="save-button">Save Hugging Face Key</button>
+      <label for="youtube-api-key" style="margin-top: 10px;">YouTube API Key:</label>
+      <input type="text" id="youtube-api-key" placeholder="Enter your YouTube API key">
+      <button id="save-youtube-api-key" class="save-button">Save YouTube API Key</button>
     </div>
     <div id="video-container">
       <!-- Video info will be inserted here -->
     </div>
-    <div class="duration-control">
+    <div class="mode-selector">
+      <button id="partial-mode" class="mode-button active">Partial Summary</button>
+      <button id="full-mode" class="mode-button">Full Subtitles</button>
+    </div>
+    <div id="duration-section" class="duration-control">
       <div class="duration-label">
         <span>Duration</span>
         <span class="duration-value"><span id="duration-display">15</span> seconds</span>
@@ -194,7 +237,15 @@
       <input type="range" id="duration-slider" min="15" max="300" value="15" step="15">
     </div>
     <button id="summarize">Summarize Video</button>
-    <div id="summary" style="display: none;"></div>
+    <div id="summary" style="display: none;">
+      <div class="summary-header">
+        <strong id="summary-title"></strong>
+        <button class="speak-button" id="speak-button" title="Listen to summary">
+          <i class="fas fa-volume-up"></i>
+        </button>
+      </div>
+      <div id="summary-content"></div>
+    </div>
     <div class="translation-controls" style="display: none;">
       <select id="language-select">
         <option value="">Select language for translation</option>

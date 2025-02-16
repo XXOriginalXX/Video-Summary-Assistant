@@ -1,33 +1,108 @@
 document.addEventListener('DOMContentLoaded', function() {
   const summarizeButton = document.getElementById('summarize');
   const summaryDiv = document.getElementById('summary');
+  const summaryTitle = document.getElementById('summary-title');
+  const summaryContent = document.getElementById('summary-content');
   const durationSlider = document.getElementById('duration-slider');
   const durationDisplay = document.getElementById('duration-display');
   const videoContainer = document.getElementById('video-container');
-  const apiKeyInput = document.getElementById('api-key');
-  const saveApiKeyButton = document.getElementById('save-api-key');
+  const huggingFaceKeyInput = document.getElementById('hugging-face-key');
+  const saveHuggingFaceKeyButton = document.getElementById('save-hugging-face-key');
+  const youtubeApiKeyInput = document.getElementById('youtube-api-key');
+  const saveYoutubeApiKeyButton = document.getElementById('save-youtube-api-key');
   const languageSelect = document.getElementById('language-select');
   const translateButton = document.getElementById('translate');
   const translationControls = document.querySelector('.translation-controls');
+  const partialModeButton = document.getElementById('partial-mode');
+  const fullModeButton = document.getElementById('full-mode');
+  const durationSection = document.getElementById('duration-section');
+  const speakButton = document.getElementById('speak-button');
 
   let currentSummary = '';
+  let isPartialMode = true;
+  let isSpeaking = false;
 
-  // Load saved API key
-  chrome.storage.local.get(['apiKey'], function(result) {
-    if (result.apiKey) {
-      apiKeyInput.value = result.apiKey;
+  // Text-to-speech functionality
+  speakButton.addEventListener('click', function() {
+    if (isSpeaking) {
+      window.speechSynthesis.cancel();
+      isSpeaking = false;
+      speakButton.classList.remove('speaking');
+      speakButton.querySelector('i').classList.remove('fa-volume-mute');
+      speakButton.querySelector('i').classList.add('fa-volume-up');
+    } else {
+      const textToSpeak = currentSummary;
+      if (textToSpeak) {
+        const utterance = new SpeechSynthesisUtterance(textToSpeak);
+        utterance.onend = function() {
+          isSpeaking = false;
+          speakButton.classList.remove('speaking');
+          speakButton.querySelector('i').classList.remove('fa-volume-mute');
+          speakButton.querySelector('i').classList.add('fa-volume-up');
+        };
+        utterance.onerror = function() {
+          isSpeaking = false;
+          speakButton.classList.remove('speaking');
+          speakButton.querySelector('i').classList.remove('fa-volume-mute');
+          speakButton.querySelector('i').classList.add('fa-volume-up');
+        };
+        window.speechSynthesis.speak(utterance);
+        isSpeaking = true;
+        speakButton.classList.add('speaking');
+        speakButton.querySelector('i').classList.remove('fa-volume-up');
+        speakButton.querySelector('i').classList.add('fa-volume-mute');
+      }
     }
   });
 
-  // Save API key
-  saveApiKeyButton.addEventListener('click', function() {
-    const apiKey = apiKeyInput.value.trim();
+  // Mode switching
+  partialModeButton.addEventListener('click', function() {
+    isPartialMode = true;
+    partialModeButton.classList.add('active');
+    fullModeButton.classList.remove('active');
+    durationSection.style.display = 'block';
+    summarizeButton.textContent = 'Summarize Video';
+  });
+
+  fullModeButton.addEventListener('click', function() {
+    isPartialMode = false;
+    fullModeButton.classList.add('active');
+    partialModeButton.classList.remove('active');
+    durationSection.style.display = 'none';
+    summarizeButton.textContent = 'Get Full Subtitles';
+  });
+
+  // Load saved API keys
+  chrome.storage.local.get(['huggingFaceKey', 'youtubeApiKey'], function(result) {
+    if (result.huggingFaceKey) {
+      huggingFaceKeyInput.value = result.huggingFaceKey;
+    }
+    if (result.youtubeApiKey) {
+      youtubeApiKeyInput.value = result.youtubeApiKey;
+    }
+  });
+
+  // Save Hugging Face API key
+  saveHuggingFaceKeyButton.addEventListener('click', function() {
+    const apiKey = huggingFaceKeyInput.value.trim();
     if (apiKey) {
-      chrome.storage.local.set({ apiKey: apiKey }, function() {
-        alert('API key saved successfully!');
+      chrome.storage.local.set({ huggingFaceKey: apiKey }, function() {
+        alert('Hugging Face API key saved successfully!');
       });
     } else {
-      alert('Please enter a valid API key');
+      alert('Please enter a valid Hugging Face API key');
+    }
+  });
+
+  // Save YouTube API key
+  saveYoutubeApiKeyButton.addEventListener('click', function() {
+    const apiKey = youtubeApiKeyInput.value.trim();
+    if (apiKey) {
+      chrome.storage.local.set({ youtubeApiKey: apiKey }, function() {
+        alert('YouTube API key saved successfully!');
+      });
+    } else {
+      alert('Please enter a valid YouTube API key');
     }
   });
 
@@ -95,17 +170,17 @@ document.addEventListener('DOMContentLoaded', function() {
       const translatedDiv = document.createElement('div');
       translatedDiv.className = 'translated-text';
       translatedDiv.innerHTML = `
-        <strong>Translated Summary (${targetLang === 'ml' ? 'Malayalam' : 'Hindi'}):</strong><br><br>
+        <strong>Translated Summary:</strong><br><br>
         ${translatedText}
       `;
 
       // Remove any previous translations
-      const existingTranslation = summaryDiv.querySelector('.translated-text');
+      const existingTranslation = summaryContent.querySelector('.translated-text');
       if (existingTranslation) {
         existingTranslation.remove();
       }
 
-      summaryDiv.appendChild(translatedDiv);
+      summaryContent.appendChild(translatedDiv);
     } catch (error) {
       alert(error.message);
     } finally {
@@ -164,67 +239,78 @@ document.addEventListener('DOMContentLoaded', function() {
   updateVideoInfo();
 
   summarizeButton.addEventListener('click', async function() {
-    // Check if API key is set
-    const apiKey = apiKeyInput.value.trim();
-    if (!apiKey) {
+    // Check if required API keys are set
+    const huggingFaceKey = huggingFaceKeyInput.value.trim();
+    const youtubeApiKey = youtubeApiKeyInput.value.trim();
+    
+    if (!huggingFaceKey) {
       alert('Please enter your Hugging Face API key first');
       return;
+    }
+    
+    if (!youtubeApiKey && !isPartialMode) {
+      alert('Please enter your YouTube API key for full subtitles feature');
+      return;
+    }
+
+    // Stop any ongoing speech
+    if (isSpeaking) {
+      window.speechSynthesis.cancel();
+      isSpeaking = false;
+      speakButton.classList.remove('speaking');
+      speakButton.querySelector('i').classList.remove('fa-volume-mute');
+      speakButton.querySelector('i').classList.add('fa-volume-up');
     }
 
     summaryDiv.style.display = 'block';
     translationControls.style.display = 'none';
-    summaryDiv.textContent = 'Getting video transcript...';
+    summaryTitle.textContent = isPartialMode ? 'Next few seconds summary:' : 'Full Video Subtitles:';
+    summaryContent.textContent = isPartialMode ? 'Getting video transcript...' : 'Getting full subtitles...';
     currentSummary = '';
     
     try {
       const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
-      const url = new URL(tab.url);
-      const videoId = url.searchParams.get('v');
       
-      if (!videoId) {
-        summaryDiv.textContent = 'Please open a YouTube video page.';
-        return;
-      }
-
-      const duration = parseInt(durationSlider.value);
-      
-      // Get video transcript for the specified duration
+      // Send message to content script
       chrome.tabs.sendMessage(tab.id, { 
-        action: 'getTranscript',
-        startTime: 0, // This is ignored now as we use current video position
-        endTime: duration
+        action: isPartialMode ? 'getTranscript' : 'getAllSubtitles',
+        startTime: 0,
+        endTime: parseInt(durationSlider.value),
+        youtubeApiKey: youtubeApiKey
       }, async function(response) {
         if (!response || !response.transcript) {
-          summaryDiv.textContent = 'Could not get video transcript. Make sure captions are available and try again.';
+          summaryContent.textContent = response?.error || 'Could not get video transcript. Make sure captions are available and try again.';
           return;
         }
-
-        console.log('Received transcript:', response.transcript);
 
         if (response.transcript.trim().length === 0) {
-          summaryDiv.textContent = 'No captions found in the specified duration. Please make sure captions are enabled and try again.';
+          summaryContent.textContent = 'No captions found. Please make sure captions are enabled and try again.';
           return;
         }
 
-        try {
-          summaryDiv.textContent = 'Generating summary...';
-          const summary = await getSummary(response.transcript, apiKey);
-          currentSummary = summary;
-          summaryDiv.innerHTML = `
-            <strong>Next ${duration} seconds summary:</strong><br><br>${summary}
-          `;
-          translationControls.style.display = 'block';
-        } catch (error) {
-          if (error.message.includes('401')) {
-            summaryDiv.textContent = 'API Authentication failed. Please check your API key.';
-          } else {
-            summaryDiv.textContent = 'Error getting summary: ' + error.message;
+        if (isPartialMode) {
+          try {
+            summaryContent.textContent = 'Generating summary...';
+            const summary = await getSummary(response.transcript, huggingFaceKey);
+            currentSummary = summary;
+            summaryContent.textContent = summary;
+            translationControls.style.display = 'block';
+          } catch (error) {
+            if (error.message.includes('401')) {
+              summaryContent.textContent = 'API Authentication failed. Please check your Hugging Face API key.';
+            } else {
+              summaryContent.textContent = 'Error getting summary: ' + error.message;
+            }
+            translationControls.style.display = 'none';
           }
-          translationControls.style.display = 'none';
+        } else {
+          currentSummary = response.transcript;
+          summaryContent.textContent = response.transcript;
+          translationControls.style.display = 'block';
         }
       });
     } catch (error) {
-      summaryDiv.textContent = 'Error: ' + error.message;
+      summaryContent.textContent = 'Error: ' + error.message;
       translationControls.style.display = 'none';
     }
   });

@@ -5,21 +5,27 @@
   "description": "Summarizes YouTube videos using AI",
   "permissions": [
     "activeTab",
-    "storage"
+    "storage",
+    "identity"
   ],
   "host_permissions": [
-    "https://www.youtube.com/*"
+    "https://www.youtube.com/*",
+    "https://www.googleapis.com/*"
   ],
   "action": {
     "default_popup": "popup.html"
-   
-    
   },
-  
+  "oauth2": {
+    "client_id": "127140029717-b5n5tu59jvmb6d3c2ea4gfblifv6am4e.apps.googleusercontent.com",
+    "scopes": [
+      "https://www.googleapis.com/auth/youtube.force-ssl"
+    ]
+  },
   "content_scripts": [
     {
       "matches": ["https://www.youtube.com/*"],
       "js": ["content.js"]
     }
-  ]
+  ],
+  "key": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAvxc8xQ4JX9YE1uGjnU5IEWEDp4qxwkS2pBYR7WShDHLxA4REhwgL2E3/g6YwFKv5UHBCh9XgY7LHvUMVwfX+YxJQqYv9KXEAr7IQvAQh0hRH7IxZpBsRa8UxgLHWqXNQAWVHHIlp9mKKGiQ8TEVGILJh4ZtaJEKO4PxGE7IqS0a6SqyONBHs6cRJ608qmxUqoKkHPvLXjvqJaEZKkHQxNhOjHJkRGYh3pQxXzYTG9pSUJwjxLXjjxwQoSDiUmXCCQf+eQUlXvjP+Hy0lCqJFKeMPhkjlgtfVTJaXgNjpXXE0ehjTYe6FXl6aYUjQvzGXyx/zBTEjpBI+AQIDAQAB"
 }
