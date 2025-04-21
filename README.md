@@ -123,11 +123,3 @@ npm start
 ✅ Make sure you've **entered the correct API keys** in `config.js`  
 ✅ Check your **API usage limits** on Hugging Face/OpenAI dashboards
 
-## 📜 License
-
-This project is licensed under the **MIT License** – feel free to use and modify it!
-
-## 📞 Support & Contributions
-
-💡 Found a bug? Have a suggestion? **Open an issue** on GitHub!  
-📧 For any queries, contact us at: **thusharvijay12@gmail.com**
